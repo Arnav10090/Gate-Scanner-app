@@ -191,7 +191,7 @@ export default function App() {
 
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-4">
         {!loggedIn ? (
-          <LoginForm onSuccess={() => setLoggedIn(true)} />
+          <LoginForm onSuccess={() => setLoggedIn(true)} onMockContinue={() => setLoggedIn(true)} />
         ) : (
           <>
             <div className="bg-white rounded-lg shadow p-3 md:p-4">
