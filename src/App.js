@@ -73,6 +73,7 @@ function LoginForm({ onSuccess, loading, onMockContinue }) {
           <p className="text-sm text-red-600 flex items-center gap-1"><AlertCircle className="w-4 h-4" /> {error}</p>
         ) : null}
         <p className="text-xs text-gray-500">Tip: If server is unavailable, mock responses are used for scan/verify/reject.</p>
+        <button type="button" onClick={onMockContinue} className="mt-2 text-xs text-blue-700 underline">Continue without login (mock)</button>
       </div>
     </form>
   );
