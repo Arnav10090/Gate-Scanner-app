@@ -117,7 +117,7 @@ export default function ScannerCamera({ active, onDetected, onError }) {
           </>
         ) : (
           <>
-            <RefreshCw className="w-4 h-4 text-blue-600 animate-spin-slow" />
+            <RefreshCw className="w-4 h-4 text-blue-600 animate-spin" />
             <span>Position QR code within the frame</span>
           </>
         )}
