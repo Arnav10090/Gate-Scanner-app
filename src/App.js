@@ -24,7 +24,7 @@ function Header({ onLogout, isLoggedIn }) {
   );
 }
 
-function LoginForm({ onSuccess, loading }) {
+function LoginForm({ onSuccess, loading, onMockContinue }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
