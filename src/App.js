@@ -7,7 +7,7 @@ import { login, scan as scanApi, verify as verifyApi, rejectSubmission as reject
 
 function Header({ onLogout, isLoggedIn }) {
   return (
-    <header className="w-full bg-white border-b">
+    <header className="w-full bg-white border-b relative z-0">
       <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Scan className="w-6 h-6 text-blue-600" />
@@ -106,6 +106,7 @@ export default function App() {
   }, []);
 
   const handleDetected = useCallback(async (text) => {
+    // Stop scanning while processing
     setScanning(false);
     setLoading(true);
     setError('');
@@ -122,7 +123,28 @@ export default function App() {
         setError('QR code expired');
         return;
       }
-      setSubmission(res.submission);
+
+      // Immediately verify/send token for this submission and show transient popup
+      try {
+        const verifyRes = await verifyApi({ submissionId: res.submission.id });
+        if (verifyRes?.tokenNumber) {
+          setTokenSent({ tokenNumber: verifyRes.tokenNumber, smsStatus: verifyRes.smsStatus, driverPhone: res.submission.driverPhone });
+          // auto-close popup after 3 seconds and redirect to scanner view
+          setTimeout(() => {
+            setTokenSent(null);
+            setSubmission(null);
+            setError('');
+            setScanMode('camera');
+            setScanning(true);
+            try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {}
+          }, 3000);
+        } else {
+          setError('Failed to send token');
+        }
+      } catch (ve) {
+        setError(ve?.message || 'Verification failed');
+      }
+
     } catch (e) {
       setError(e?.message || 'Scan failed');
     } finally {
@@ -145,7 +167,16 @@ export default function App() {
       }
       const res = await verifyApi({ submissionId: submission.id });
       if (res?.tokenNumber) {
-        setTokenSent({ tokenNumber: res.tokenNumber, smsStatus: res.smsStatus });
+        setTokenSent({ tokenNumber: res.tokenNumber, smsStatus: res.smsStatus, driverPhone: submission.driverPhone });
+        // auto-close popup and redirect to scanner view after 3s
+        setTimeout(() => {
+          setTokenSent(null);
+          setSubmission(null);
+          setError('');
+          setScanMode('camera');
+          setScanning(true);
+          try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {}
+        }, 3000);
       } else {
         setError('Failed to send token');
       }
@@ -246,13 +277,20 @@ export default function App() {
           ) : null}
 
           {tokenSent ? (
-            <div className="bg-white rounded-lg shadow p-6 text-center">
-              <div className="flex items-center justify-center gap-2 text-green-600">
-                <CheckCircle className="w-6 h-6" />
-                <h3 className="text-lg font-semibold">Token Sent</h3>
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+              <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
+              <div className="relative bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 p-6 text-center">
+                <div className="flex items-center justify-center w-14 h-14 rounded-full bg-green-50 mx-auto">
+                  <CheckCircle className="w-7 h-7 text-green-600" />
+                </div>
+                <h3 className="mt-4 text-lg font-semibold">Token Sent</h3>
+                <p className="mt-2 text-md text-gray-600">Token <span className="font-medium text-gray-900">{tokenSent.tokenNumber}</span> was sent to</p>
+                <p className="mt-1 text-md text-gray-800 font-medium">{tokenSent.driverPhone}</p>
+                <p className="mt-3 text-md text-gray-500">Submit your documents at the <span className="font-medium text-gray-700">Entry gate</span>.</p>
+                <div className="mt-4">
+                  <button onClick={() => { setTokenSent(null); setScanMode('camera'); setSubmission(null); setScanning(true); }} className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded">OK</button>
+                </div>
               </div>
-              <p className="mt-2 text-gray-700">Token <span className="font-semibold">{tokenSent.tokenNumber}</span> has been sent via SMS to the driver.</p>
-              <button onClick={resetToScan} className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Scan Next Vehicle</button>
             </div>
           ) : null}
 

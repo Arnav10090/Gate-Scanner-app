@@ -31,15 +31,31 @@ export default function VerificationDetails({ submission, onApprove, onReject, o
           <p className="text-xs uppercase text-gray-500">Vehicle Number</p>
           <p className="text-2xl md:text-3xl font-bold tracking-wide text-gray-900">{submission.vehicleNumber || '—'}</p>
         </div>
-        <div className="bg-gray-50 rounded p-4">
-          <p className="text-xs uppercase text-gray-500 flex items-center gap-1"><User className="w-4 h-4" /> Driver</p>
-          <p className="text-base font-medium">{submission.driverName || '—'}</p>
-          <p className="text-gray-700 flex items-center gap-1 mt-1"><Phone className="w-4 h-4" /> {submission.driverPhone || '—'}</p>
+        <div className="bg-gray-50 rounded p-4 flex items-center gap-4">
+          <div className="w-20 h-20 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+            {submission.driverPhoto ? (
+              <img src={submission.driverPhoto} alt="Driver" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-400">
+                <User className="w-8 h-8" />
+              </div>
+            )}
+          </div>
+          <div className="flex-1">
+            <p className="text-xs uppercase text-gray-500 flex items-center gap-1"><User className="w-4 h-4" /> Driver</p>
+            <p className="text-base font-medium">{submission.driverName || '—'}</p>
+            <p className="text-gray-700 flex items-center gap-1 mt-1"><Phone className="w-4 h-4" /> {submission.driverPhone || '—'}</p>
+          </div>
         </div>
         <div className="bg-gray-50 rounded p-4">
           <p className="text-xs uppercase text-gray-500">Helper</p>
           <p className="text-base font-medium">{submission.helperName || '—'}</p>
           <p className="text-gray-700 flex items-center gap-1 mt-1"><Phone className="w-4 h-4" /> {submission.helperPhone || '—'}</p>
+        </div>
+        <div className="bg-gray-50 rounded p-4">
+          <p className="text-xs uppercase text-gray-500 flex items-center gap-1"><User className="w-4 h-4" /> Customer</p>
+          <p className="text-base font-medium">{submission.customerName || '—'}</p>
+          <p className="text-gray-700 flex items-center gap-1 mt-1"><Phone className="w-4 h-4" /> {submission.customerPhone || '—'}</p>
         </div>
         <div className="bg-gray-50 rounded p-4">
           <p className="text-xs uppercase text-gray-500 flex items-center gap-1"><Globe className="w-4 h-4" /> Preferred Language</p>

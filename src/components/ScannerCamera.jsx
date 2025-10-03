@@ -75,13 +75,46 @@ export default function ScannerCamera({ active, onDetected, onError }) {
       streamRef.current = stream;
       if (!videoRef.current) return;
       videoRef.current.srcObject = stream;
-      await videoRef.current.play();
-      setCameraStatus('ready');
-      rafRef.current = requestAnimationFrame(scanFrame);
+      try {
+        await videoRef.current.play();
+        setCameraStatus('ready');
+        rafRef.current = requestAnimationFrame(scanFrame);
+      } catch (playErr) {
+        // Some browsers throw a harmless "The play() request was interrupted by a new load request" error
+        // when streams are started/stopped rapidly. Ignore that specific message and surface a friendly
+        // message for actual permission/read errors.
+        const msg = playErr?.message || '';
+        console.error('Video play error:', playErr);
+        if (msg.includes('play() request was interrupted')) {
+          // do not call onError for this non-actionable error; try to continue scanning loop
+          // but set camera to ready if the video element has dimensions
+          const w = videoRef.current?.videoWidth || 0;
+          const h = videoRef.current?.videoHeight || 0;
+          if (w && h) {
+            setCameraStatus('ready');
+            rafRef.current = requestAnimationFrame(scanFrame);
+          } else {
+            setCameraStatus('idle');
+          }
+        } else if (msg.toLowerCase().includes('permission') || msg.toLowerCase().includes('denied')) {
+          setCameraStatus('error');
+          onError?.('Camera access denied or unavailable');
+        } else {
+          setCameraStatus('error');
+          onError?.(playErr?.message || 'Camera access failed');
+        }
+      }
     } catch (e) {
       console.error(e);
       setCameraStatus('error');
-      onError?.(e?.message || 'Camera access failed');
+      const msg = e?.message || '';
+      if (msg.includes('play() request was interrupted')) {
+        // ignore
+      } else if (msg.toLowerCase().includes('permission') || msg.toLowerCase().includes('denied')) {
+        onError?.('Camera access denied or unavailable');
+      } else {
+        onError?.(e?.message || 'Camera access failed');
+      }
     }
   }, [scanFrame, onError]);
 
