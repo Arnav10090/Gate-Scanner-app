@@ -190,80 +190,76 @@ export default function App() {
       <Header onLogout={handleLogout} isLoggedIn={loggedIn} />
 
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-4">
-        {!loggedIn ? (
-          <LoginForm onSuccess={() => setLoggedIn(true)} onMockContinue={() => setLoggedIn(true)} />
-        ) : (
-          <>
-            <div className="bg-white rounded-lg shadow p-3 md:p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Camera className="w-5 h-5 text-blue-600" />
-                  <h2 className="text-base md:text-lg font-semibold">Scanner</h2>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setScanMode('camera')}
-                    className={`px-3 py-1.5 rounded border ${scanMode === 'camera' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-800 border-gray-300'}`}
-                  >
-                    Camera Scan
-                  </button>
-                  <button
-                    onClick={() => setScanMode('manual')}
-                    className={`px-3 py-1.5 rounded border ${scanMode === 'manual' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-800 border-gray-300'}`}
-                  >
-                    Manual Entry
-                  </button>
-                </div>
+        <>
+          <div className="bg-white rounded-lg shadow p-3 md:p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Camera className="w-5 h-5 text-blue-600" />
+                <h2 className="text-base md:text-lg font-semibold">Scanner</h2>
               </div>
-
-              <div className="mt-4">
-                {scanMode === 'camera' ? (
-                  <div className="space-y-3">
-                    <ScannerCamera active={scanning && !submission && !tokenSent} onDetected={handleDetected} onError={setError} />
-                    <div className="flex gap-2">
-                      {!scanning ? (
-                        <button onClick={startScan} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Start</button>
-                      ) : (
-                        <button onClick={stopScan} className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded">Stop</button>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <ManualEntry onSubmit={handleManualSubmit} loading={loading} error={error} />
-                )}
-                {error && (
-                  <p className="mt-3 text-sm text-red-600 flex items-center gap-1"><AlertCircle className="w-4 h-4" /> {error}</p>
-                )}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setScanMode('camera')}
+                  className={`px-3 py-1.5 rounded border ${scanMode === 'camera' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-800 border-gray-300'}`}
+                >
+                  Camera Scan
+                </button>
+                <button
+                  onClick={() => setScanMode('manual')}
+                  className={`px-3 py-1.5 rounded border ${scanMode === 'manual' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-800 border-gray-300'}`}
+                >
+                  Manual Entry
+                </button>
               </div>
             </div>
 
-            {submission && !tokenSent ? (
-              <VerificationDetails
-                submission={submission}
-                onApprove={approveAndSend}
-                onReject={rejectWithReason}
-                onCancel={() => setSubmission(null)}
-                loading={loading}
-                error={error}
-              />
-            ) : null}
-
-            {tokenSent ? (
-              <div className="bg-white rounded-lg shadow p-6 text-center">
-                <div className="flex items-center justify-center gap-2 text-green-600">
-                  <CheckCircle className="w-6 h-6" />
-                  <h3 className="text-lg font-semibold">Token Sent</h3>
+            <div className="mt-4">
+              {scanMode === 'camera' ? (
+                <div className="space-y-3">
+                  <ScannerCamera active={scanning && !submission && !tokenSent} onDetected={handleDetected} onError={setError} />
+                  <div className="flex gap-2">
+                    {!scanning ? (
+                      <button onClick={startScan} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Start</button>
+                    ) : (
+                      <button onClick={stopScan} className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded">Stop</button>
+                    )}
+                  </div>
                 </div>
-                <p className="mt-2 text-gray-700">Token <span className="font-semibold">{tokenSent.tokenNumber}</span> has been sent via SMS to the driver.</p>
-                <button onClick={resetToScan} className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Scan Next Vehicle</button>
-              </div>
-            ) : null}
+              ) : (
+                <ManualEntry onSubmit={handleManualSubmit} loading={loading} error={error} />
+              )}
+              {error && (
+                <p className="mt-3 text-sm text-red-600 flex items-center gap-1"><AlertCircle className="w-4 h-4" /> {error}</p>
+              )}
+            </div>
+          </div>
 
-            {loading ? (
-              <div className="flex items-center gap-2 text-blue-700"><span className="animate-spin inline-block h-4 w-4 border-2 border-current border-t-transparent rounded-full" /> Loading...</div>
-            ) : null}
-          </>
-        )}
+          {submission && !tokenSent ? (
+            <VerificationDetails
+              submission={submission}
+              onApprove={approveAndSend}
+              onReject={rejectWithReason}
+              onCancel={() => setSubmission(null)}
+              loading={loading}
+              error={error}
+            />
+          ) : null}
+
+          {tokenSent ? (
+            <div className="bg-white rounded-lg shadow p-6 text-center">
+              <div className="flex items-center justify-center gap-2 text-green-600">
+                <CheckCircle className="w-6 h-6" />
+                <h3 className="text-lg font-semibold">Token Sent</h3>
+              </div>
+              <p className="mt-2 text-gray-700">Token <span className="font-semibold">{tokenSent.tokenNumber}</span> has been sent via SMS to the driver.</p>
+              <button onClick={resetToScan} className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Scan Next Vehicle</button>
+            </div>
+          ) : null}
+
+          {loading ? (
+            <div className="flex items-center gap-2 text-blue-700"><span className="animate-spin inline-block h-4 w-4 border-2 border-current border-t-transparent rounded-full" /> Loading...</div>
+          ) : null}
+        </>
       </main>
 
       <footer className="py-6 text-center text-xs text-gray-500">© Gate Scanner</footer>
